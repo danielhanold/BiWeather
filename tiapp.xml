@@ -9,7 +9,7 @@
     </deployment-targets>
     <sdk-version>1.8.2</sdk-version>
     <id>com.binationals.weather</id>
-    <name>Binational Weather</name>
+    <name>BiWeather</name>
     <version>1.0</version>
     <publisher>danny</publisher>
     <url>http://www.danielhanold.com</url>
