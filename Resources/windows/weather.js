@@ -70,13 +70,38 @@ W.Weather = function() {
       right:5,
       font:{fontFamily:'Helvetica Neue', fontSize:35,fontWeight:'bold'},
     });
+    
+    var viewCurrentHighLow = Ti.UI.createView({
+      width:'85%',
+      top:175,
+      height:20,
+      borderRadius:3,
+      backgroundColor:'#2075a6'
+    });
+    var tempLowFahrenheit = data.weather.forecast[0].night_min_temp;
+    var tempHighFahrenheit = data.weather.forecast[0].day_max_temp;
+    var labelTodayLow = UI.Label({
+      text:'Low: ' + tempLowFahrenheit + '°F | ' + UTILS.FahrenheitToCelcius(tempLowFahrenheit) + '°C',
+      left:4,
+      top:2,
+      font:{fontFamily:'Helvetica Neue', fontSize: 12, fontWeight:'normal'},
+    });
+    var labelTodayHigh = UI.Label({
+      text:'High: ' + tempHighFahrenheit + '°F | ' + UTILS.FahrenheitToCelcius(tempHighFahrenheit) + '°C',
+      right:4,
+      top:2,
+      font:{fontFamily:'Helvetica Neue', fontSize: 12, fontWeight:'normal'},
+    });    
+    viewCurrentHighLow.add(labelTodayLow);
+    viewCurrentHighLow.add(labelTodayHigh);
+    
     viewCurrentWeather.add(labelLocation);
     viewCurrentWeather.add(labelWeatherText);
     viewCurrentWeather.add(labelTempFahrenheit);
-    viewCurrentWeather.add(labelTempCelcius);    
+    viewCurrentWeather.add(labelTempCelcius);
     
-    
-    win.add(viewCurrentWeather);    
+    win.add(viewCurrentWeather);
+    win.add(viewCurrentHighLow);    
   });
 
   /**
