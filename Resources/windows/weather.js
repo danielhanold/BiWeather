@@ -1,8 +1,19 @@
 W.Weather = function() {
   var win = Ti.UI.createWindow({
     backgroundColor:'#509fd6',
-    backgroundImage:Ti.Filesystem.resourcesDirectory + '/images/window_weather_bg.png',
+    backgroundImage:Ti.Filesystem.resourcesDirectory + 'images/window_weather_bg.png',
   });
+  
+  var headline = Ti.UI.createImageView({
+    top:20,
+    width:270,
+    height:33,
+    image:Ti.Filesystem.resourcesDirectory + 'images/window_weather_headline.png',
+  });
+  
+  Ti.API.info(Ti.Filesystem.resourcesDirectory + 'images/window_weather_headline.png');
+  
+  win.add(headline);
 
   var activityIndicator = Ti.UI.createActivityIndicator({
     bottom:10, 
@@ -25,26 +36,28 @@ W.Weather = function() {
   Ti.App.addEventListener('weather_update', function(data) {
     Ti.API.info(data.weather);
     var viewCurrentWeather = Ti.UI.createView({
-      backgroundColor:'white',
-      width:'90%',
-      top:10,
+      width:'85%',
+      top:70,
       height:100,
+      borderRadius:5,
+      backgroundColor:'#4d8bb5',
+      borderColor:'#386482'
     });
     var labelLocation = Ti.UI.createLabel({
       text:'Current weather in ' + Location.currentLocation.city + ':',
       top:0,
-      left:0,
+      left:5,
       font:{fontFamily:'Helvetica Neue', fontSize:16,fontWeight:'normal'},
-      color:'black',
+      color:'white',
       width:'auto',
       height:'auto'
     });
     var labelWeatherText = Ti.UI.createLabel({
       text:data.weather.curren_weather[0].weather_text,
       top:20,
-      left:0,
+      left:5,
       font:{fontFamily:'Helvetica Neue', fontSize:14,fontWeight:'normal'},
-      color:'black',
+      color:'white',
       width:'auto',
       height:'auto'
     });
@@ -56,7 +69,7 @@ W.Weather = function() {
       bottom:0,
       right:100,
       font:{fontFamily:'Helvetica Neue', fontSize:35,fontWeight:'bold'},
-      color:'black',
+      color:'white',
       width:'auto',
       height:'auto'      
     });
@@ -65,7 +78,7 @@ W.Weather = function() {
       bottom:0,
       right:5,
       font:{fontFamily:'Helvetica Neue', fontSize:35,fontWeight:'bold'},
-      color:'black',
+      color:'white',
       width:'auto',
       height:'auto'      
     });
