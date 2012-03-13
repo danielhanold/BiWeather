@@ -43,44 +43,32 @@ W.Weather = function() {
       backgroundColor:'#4d8bb5',
       borderColor:'#386482'
     });
-    var labelLocation = Ti.UI.createLabel({
+    var labelLocation = UI.Label({
       text:'Current weather in ' + Location.currentLocation.city + ':',
       top:0,
       left:5,
-      font:{fontFamily:'Helvetica Neue', fontSize:16,fontWeight:'normal'},
-      color:'white',
-      width:'auto',
-      height:'auto'
+      font:{fontFamily:'Helvetica Neue', fontSize:16,fontWeight:'normal'}
     });
-    var labelWeatherText = Ti.UI.createLabel({
+    var labelWeatherText = UI.Label({
       text:data.weather.curren_weather[0].weather_text,
       top:20,
       left:5,
       font:{fontFamily:'Helvetica Neue', fontSize:14,fontWeight:'normal'},
-      color:'white',
-      width:'auto',
-      height:'auto'
     });
     
     var tempFahrenheit = data.weather.curren_weather[0].temp;
-    var tempCelcius = Math.round((tempFahrenheit - 32) * (5/9));
-    var labelTempFahrenheit = Ti.UI.createLabel({
+    var labelTempFahrenheit = UI.Label({
       text:tempFahrenheit + '°F',
       bottom:0,
       right:100,
       font:{fontFamily:'Helvetica Neue', fontSize:35,fontWeight:'bold'},
-      color:'white',
-      width:'auto',
-      height:'auto'      
+  
     });
-    var labelTempCelcius = Ti.UI.createLabel({
-      text:tempCelcius + '°C',
+    var labelTempCelcius = UI.Label({
+      text:UTILS.FahrenheitToCelcius(tempFahrenheit) + '°C',
       bottom:0,
       right:5,
       font:{fontFamily:'Helvetica Neue', fontSize:35,fontWeight:'bold'},
-      color:'white',
-      width:'auto',
-      height:'auto'      
     });
     viewCurrentWeather.add(labelLocation);
     viewCurrentWeather.add(labelWeatherText);

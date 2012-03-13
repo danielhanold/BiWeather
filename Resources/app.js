@@ -4,6 +4,8 @@ Titanium.UI.setBackgroundColor('#000');
 // Initialize app variables.
 Ti.include('includes/properties.js');
 Ti.include('includes/geolocation.js');
+Ti.include('includes/ui.js');
+Ti.include('includes/utils.js');
 
 // Load all windows.
 Ti.include('windows.js');
