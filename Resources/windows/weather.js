@@ -1,7 +1,7 @@
 W.Weather = function() {
   var win = Ti.UI.createWindow({
     backgroundColor:'#509fd6',
-    backgroundImage:Ti.Filesystem.resourcesDirectory + '/images/window_weather_bg.png'    
+    backgroundImage:Ti.Filesystem.resourcesDirectory + '/images/window_weather_bg.png',
   });
 
   var activityIndicator = Ti.UI.createActivityIndicator({
@@ -20,6 +20,44 @@ W.Weather = function() {
   Location.updateLocation();
 
   /**
+   * React to the weather update event.
+   */
+  Ti.App.addEventListener('weather_update', function(data) {
+    Ti.API.info(data.weather);
+    var viewCurrentWeather = Ti.UI.createView({
+      backgroundColor:'white',
+      width:'90%',
+      top:10,
+      height:100,
+    });
+    var labelLocation = Ti.UI.createLabel({
+      text:Location.currentLocation.city,
+      top:5,
+      left:5,
+      font:{fontFamily:'Helvetica Neue', fontSize:15,fontWeight:'bold'},
+      color:'black',
+      width:'auto',
+      height:'auto'
+    });
+    
+    var tempFahrenheit = data.weather.curren_weather[0].temp;
+    var labelTempFahrenheit = Ti.UI.createLabel({
+      text:tempFahrenheit + 'F',
+      top:5,
+      right:5,
+      font:{fontFamily:'Helvetica Neue', fontSize:15,fontWeight:'bold'},
+      color:'black',
+      width:'auto',
+      height:'auto'      
+    }); 
+    viewCurrentWeather.add(labelLocation);
+    viewCurrentWeather.add(labelTempFahrenheit);
+    
+    
+    win.add(viewCurrentWeather);    
+  });
+
+  /**
    * React to the location update event.
    */
   Ti.App.addEventListener('location_update', function() {
@@ -30,7 +68,7 @@ W.Weather = function() {
       activityIndicator.setMessage('Getting weather information ...');
       
       // @see http://www.myweather2.com/developer/apis.aspx?uref=becda844-8299-4bf6-899b-d771a92b9dbf
-      var url = 'http://www.myweather2.com/developer/forecast.ashx?uac=' + Ti.App.Properties.getString('weather2AccessCode') + '&output=json&temp_unit=c&query=' + Location.currentCoords.latitude + ',' + Location.currentCoords.longitude;
+      var url = 'http://www.myweather2.com/developer/forecast.ashx?uac=' + Ti.App.Properties.getString('weather2AccessCode') + '&output=json&temp_unit=f&query=' + Location.currentCoords.latitude + ',' + Location.currentCoords.longitude;
       Ti.API.info('Weather2 URL: ' + url);
       
       var xhr = Ti.Network.createHTTPClient({
@@ -41,9 +79,8 @@ W.Weather = function() {
           // this.responseData holds any returned binary data
           var httpStatus = this.status;
           if (httpStatus == 200) {
-            Ti.API.info('HTTP Request was successful');
-            Ti.API.info(this.responseText);
-            Ti.API.info(JSON.parse(this.responseText));
+            Ti.API.info('Weather data was found.');
+            Ti.App.fireEvent('weather_update', JSON.parse(this.responseText)); 
             
             // Hide the activity indicator and show a basic label instead.
             activityIndicator.hide();
