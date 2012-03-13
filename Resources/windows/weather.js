@@ -31,27 +31,48 @@ W.Weather = function() {
       height:100,
     });
     var labelLocation = Ti.UI.createLabel({
-      text:Location.currentLocation.city,
-      top:5,
-      left:5,
-      font:{fontFamily:'Helvetica Neue', fontSize:15,fontWeight:'bold'},
+      text:'Current weather in ' + Location.currentLocation.city + ':',
+      top:0,
+      left:0,
+      font:{fontFamily:'Helvetica Neue', fontSize:16,fontWeight:'normal'},
+      color:'black',
+      width:'auto',
+      height:'auto'
+    });
+    var labelWeatherText = Ti.UI.createLabel({
+      text:data.weather.curren_weather[0].weather_text,
+      top:20,
+      left:0,
+      font:{fontFamily:'Helvetica Neue', fontSize:14,fontWeight:'normal'},
       color:'black',
       width:'auto',
       height:'auto'
     });
     
     var tempFahrenheit = data.weather.curren_weather[0].temp;
+    var tempCelcius = Math.round((tempFahrenheit - 32) * (5/9));
     var labelTempFahrenheit = Ti.UI.createLabel({
-      text:tempFahrenheit + 'F',
-      top:5,
-      right:5,
-      font:{fontFamily:'Helvetica Neue', fontSize:15,fontWeight:'bold'},
+      text:tempFahrenheit + '°F',
+      bottom:0,
+      right:100,
+      font:{fontFamily:'Helvetica Neue', fontSize:35,fontWeight:'bold'},
       color:'black',
       width:'auto',
       height:'auto'      
-    }); 
+    });
+    var labelTempCelcius = Ti.UI.createLabel({
+      text:tempCelcius + '°C',
+      bottom:0,
+      right:5,
+      font:{fontFamily:'Helvetica Neue', fontSize:35,fontWeight:'bold'},
+      color:'black',
+      width:'auto',
+      height:'auto'      
+    });
     viewCurrentWeather.add(labelLocation);
+    viewCurrentWeather.add(labelWeatherText);
     viewCurrentWeather.add(labelTempFahrenheit);
+    viewCurrentWeather.add(labelTempCelcius);    
     
     
     win.add(viewCurrentWeather);    
