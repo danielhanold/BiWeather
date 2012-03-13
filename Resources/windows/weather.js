@@ -3,6 +3,18 @@ W.Weather = function() {
     backgroundColor:'#509fd6',
     backgroundImage:Ti.Filesystem.resourcesDirectory + '/images/window_weather_bg.png'    
   });
+
+  var activityIndicator = Ti.UI.createActivityIndicator({
+    bottom:10, 
+    height:50,
+    width:210,
+    style:Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN,
+    color:'white',
+    message:'Detecting Location ...',
+    font:{fontFamily:'Helvetica Neue', fontSize:15,fontWeight:'bold'}
+  });
+  win.add(activityIndicator);
+  activityIndicator.show();
   
   // Update the location.
   Location.updateLocation();
@@ -15,6 +27,7 @@ W.Weather = function() {
 
     if (Location.currentCoordsAvailable) {
       Ti.API.info('Coordinates are available. Attempt to get the temperature');
+      activityIndicator.setMessage('Getting weather information ...');
       
       // @see http://www.myweather2.com/developer/apis.aspx?uref=becda844-8299-4bf6-899b-d771a92b9dbf
       var url = 'http://www.myweather2.com/developer/forecast.ashx?uac=' + Ti.App.Properties.getString('weather2AccessCode') + '&output=json&temp_unit=c&query=' + Location.currentCoords.latitude + ',' + Location.currentCoords.longitude;
@@ -31,6 +44,22 @@ W.Weather = function() {
             Ti.API.info('HTTP Request was successful');
             Ti.API.info(this.responseText);
             Ti.API.info(JSON.parse(this.responseText));
+            
+            // Hide the activity indicator and show a basic label instead.
+            activityIndicator.hide();
+            var finishMessage = Ti.UI.createLabel({
+              bottom:10,
+              height:50,
+              width:210,
+              color:'white',
+              font:{fontFamily:'Helvetica Neue', fontSize:15,fontWeight:'bold'},
+              text:'Found your weather.',
+              textAlign:Titanium.UI.TEXT_ALIGNMENT_CENTER
+            });
+            win.add(finishMessage);
+            setTimeout(function() {
+              win.remove(finishMessage);
+            },3000);            
           }
         },
         onerror: function(e) {
