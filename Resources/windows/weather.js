@@ -97,7 +97,8 @@ W.Weather = function() {
     var tempFahrenheit = data.weather.curren_weather[0].temp;    
     var tempLowFahrenheit = data.weather.forecast[0].night_min_temp;
     var tempHighFahrenheit = data.weather.forecast[0].day_max_temp;
-    labelLocation.setText('Current weather in ' + Location.currentLocation.city + ':');
+    var currentCity = (Location.currentLocationAvailable) ? Location.currentLocation.city : 'your location';
+    labelLocation.setText('Current weather in ' + currentCity + ':');
     labelWeatherText.setText(data.weather.curren_weather[0].weather_text);
     labelTempFahrenheit.setText(tempFahrenheit + '°F');
     labelTempCelcius.setText(UTILS.FahrenheitToCelcius(tempFahrenheit) + '°C');

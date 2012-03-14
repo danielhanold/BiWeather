@@ -11,6 +11,7 @@ var Location = {
 
 (function() {
   Ti.Geolocation.purpose = 'Show you the weather for your current location';
+  Ti.Geolocation.accuracy = Ti.Geolocation.ACCURACY_BEST;
   
   Location.updateLocation = function() {
     if (Ti.Geolocation.locationServicesEnabled) {
@@ -26,9 +27,9 @@ var Location = {
           Ti.API.info('Location detected.');
           Location.currentCoords = e.coords;
           Location.currentCoordsAvailable = true;
-          
           // If the accuracy is better than ACCURACY_HUNDRED_METERS,
           // attempt to reverse-geocode the coordinates.
+          Ti.API.info('Accuracy: ' + e.coords.accuracy);
           if (e.coords.accuracy <= Ti.Geolocation.ACCURACY_HUNDRED_METERS) {
             Ti.Geolocation.reverseGeocoder(e.coords.latitude, e.coords.longitude, function(e) {
               Ti.API.info('Attempting to reverse-geocode location');
@@ -48,6 +49,11 @@ var Location = {
                 Ti.App.fireEvent('location_update', false);                
               }
             });
+          }
+          // The above reverse-geocoding only triggers if the location is 
+          // good enough. Otherwise, still trigger the location update event.
+          else {
+            Ti.App.fireEvent('location_update', false);             
           }          
         }
       });
