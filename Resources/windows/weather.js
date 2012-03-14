@@ -4,17 +4,16 @@ W.Weather = function() {
     backgroundImage:Ti.Filesystem.resourcesDirectory + 'images/window_weather_bg.png',
   });
   
+  // Create the headline.
   var headline = Ti.UI.createImageView({
     top:20,
     width:270,
     height:33,
     image:Ti.Filesystem.resourcesDirectory + 'images/window_weather_headline.png',
   });
-  
-  Ti.API.info(Ti.Filesystem.resourcesDirectory + 'images/window_weather_headline.png');
-  
-  win.add(headline);
-
+  win.add(headline);  
+    
+  // Create an activity indicator.
   var activityIndicator = Ti.UI.createActivityIndicator({
     bottom:10, 
     height:50,
@@ -23,10 +22,68 @@ W.Weather = function() {
     color:'white',
     message:'Detecting Location ...',
     font:{fontFamily:'Helvetica Neue', fontSize:15,fontWeight:'bold'}
-  });
-  win.add(activityIndicator);
+  });  
+  win.add(activityIndicator);  
+  // Show the spinner.
   activityIndicator.show();
-  
+
+  // Add a view for the current weather.
+  var viewCurrentWeather = Ti.UI.createView({
+    width:'85%',
+    top:70,
+    height:100,
+    borderRadius:5,
+    backgroundColor:'#4d8bb5',
+    borderColor:'#386482'
+  });
+  var labelLocation = UI.Label({
+    text:'Weather data not availble.',
+    top:0,
+    left:5,
+    font:{fontFamily:'Helvetica Neue', fontSize:16,fontWeight:'normal'}
+  });
+  var labelWeatherText = UI.Label({
+    top:20,
+    left:5,
+    font:{fontFamily:'Helvetica Neue', fontSize:14,fontWeight:'normal'},
+  });
+  var labelTempFahrenheit = UI.Label({
+    bottom:0,
+    right:100,
+    font:{fontFamily:'Helvetica Neue', fontSize:35,fontWeight:'bold'},
+
+  });
+  var labelTempCelcius = UI.Label({
+    bottom:0,
+    right:5,
+    font:{fontFamily:'Helvetica Neue', fontSize:35,fontWeight:'bold'},
+  });
+  viewCurrentWeather.add(labelLocation);
+  viewCurrentWeather.add(labelWeatherText);
+  viewCurrentWeather.add(labelTempFahrenheit);
+  viewCurrentWeather.add(labelTempCelcius);    
+
+  // Add a view for the daily high / low.
+  var viewCurrentHighLow = Ti.UI.createView({
+    width:'85%',
+    top:175,
+    height:20,
+    borderRadius:3,
+    backgroundColor:'#2075a6'
+  });
+  var labelTodayLow = UI.Label({
+    left:4,
+    top:2,
+    font:{fontFamily:'Helvetica Neue', fontSize: 12, fontWeight:'normal'},
+  });
+  var labelTodayHigh = UI.Label({
+    right:4,
+    top:2,
+    font:{fontFamily:'Helvetica Neue', fontSize: 12, fontWeight:'normal'},
+  });    
+  viewCurrentHighLow.add(labelTodayLow);
+  viewCurrentHighLow.add(labelTodayHigh);
+   
   // Update the location.
   Location.updateLocation();
 
@@ -34,74 +91,39 @@ W.Weather = function() {
    * React to the weather update event.
    */
   Ti.App.addEventListener('weather_update', function(data) {
-    Ti.API.info(data.weather);
-    var viewCurrentWeather = Ti.UI.createView({
-      width:'85%',
-      top:70,
-      height:100,
-      borderRadius:5,
-      backgroundColor:'#4d8bb5',
-      borderColor:'#386482'
-    });
-    var labelLocation = UI.Label({
-      text:'Current weather in ' + Location.currentLocation.city + ':',
-      top:0,
-      left:5,
-      font:{fontFamily:'Helvetica Neue', fontSize:16,fontWeight:'normal'}
-    });
-    var labelWeatherText = UI.Label({
-      text:data.weather.curren_weather[0].weather_text,
-      top:20,
-      left:5,
-      font:{fontFamily:'Helvetica Neue', fontSize:14,fontWeight:'normal'},
-    });
-    
-    var tempFahrenheit = data.weather.curren_weather[0].temp;
-    var labelTempFahrenheit = UI.Label({
-      text:tempFahrenheit + '°F',
-      bottom:0,
-      right:100,
-      font:{fontFamily:'Helvetica Neue', fontSize:35,fontWeight:'bold'},
-  
-    });
-    var labelTempCelcius = UI.Label({
-      text:UTILS.FahrenheitToCelcius(tempFahrenheit) + '°C',
-      bottom:0,
-      right:5,
-      font:{fontFamily:'Helvetica Neue', fontSize:35,fontWeight:'bold'},
-    });
-    
-    var viewCurrentHighLow = Ti.UI.createView({
-      width:'85%',
-      top:175,
-      height:20,
-      borderRadius:3,
-      backgroundColor:'#2075a6'
-    });
+    //Ti.API.info(data.weather);
+
+    // Update the labels.
+    var tempFahrenheit = data.weather.curren_weather[0].temp;    
     var tempLowFahrenheit = data.weather.forecast[0].night_min_temp;
     var tempHighFahrenheit = data.weather.forecast[0].day_max_temp;
-    var labelTodayLow = UI.Label({
-      text:'Low: ' + tempLowFahrenheit + '°F  |  ' + UTILS.FahrenheitToCelcius(tempLowFahrenheit) + '°C',
-      left:4,
-      top:2,
-      font:{fontFamily:'Helvetica Neue', fontSize: 12, fontWeight:'normal'},
-    });
-    var labelTodayHigh = UI.Label({
-      text:'High: ' + tempHighFahrenheit + '°F  |  ' + UTILS.FahrenheitToCelcius(tempHighFahrenheit) + '°C',
-      right:4,
-      top:2,
-      font:{fontFamily:'Helvetica Neue', fontSize: 12, fontWeight:'normal'},
-    });    
-    viewCurrentHighLow.add(labelTodayLow);
-    viewCurrentHighLow.add(labelTodayHigh);
+    labelLocation.setText('Current weather in ' + Location.currentLocation.city + ':');
+    labelWeatherText.setText(data.weather.curren_weather[0].weather_text);
+    labelTempFahrenheit.setText(tempFahrenheit + '°F');
+    labelTempCelcius.setText(UTILS.FahrenheitToCelcius(tempFahrenheit) + '°C');
+    labelTodayLow.setText('Low: ' + tempLowFahrenheit + '°F  |  ' + UTILS.FahrenheitToCelcius(tempLowFahrenheit) + '°C');
+    labelTodayHigh.setText('High: ' + tempHighFahrenheit + '°F  |  ' + UTILS.FahrenheitToCelcius(tempHighFahrenheit) + '°C');
     
-    viewCurrentWeather.add(labelLocation);
-    viewCurrentWeather.add(labelWeatherText);
-    viewCurrentWeather.add(labelTempFahrenheit);
-    viewCurrentWeather.add(labelTempCelcius);
-    
+    // Add all elements to the page.
     win.add(viewCurrentWeather);
-    win.add(viewCurrentHighLow);    
+    win.add(viewCurrentHighLow);
+  });
+
+  // React when the app is resuming.
+  Ti.App.addEventListener('resume', function(e) {
+    Ti.API.info('App was resumed. Get the location again.');
+    
+    // Remove the current elements from the window
+    // so they can be added again.
+    win.remove(viewCurrentWeather);
+    win.remove(viewCurrentHighLow);
+    
+    // Change the text on the spinner.
+    activityIndicator.setMessage('Updating your location ...');
+    activityIndicator.show();
+     
+    // Update the location.
+    Location.updateLocation();
   });
 
   /**
