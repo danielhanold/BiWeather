@@ -26,6 +26,18 @@ W.Weather = function() {
   win.add(activityIndicator);  
   // Show the spinner.
   activityIndicator.show();
+  
+  var buttonRefresh = Ti.UI.createButton({
+    title:'Refresh Weather',
+    bottom:10,
+    width:200,
+    height:44,
+    backgroundImage:'images/buttons/button-grey.png',
+    color:'black',
+    font:{fontFamily:'Helvetica Neue', fontSize:16, fontWeight:'bold'}
+  });
+  win.add(buttonRefresh);
+  buttonRefresh.hide();
 
   // Add a view for the current weather.
   var viewCurrentWeather = Ti.UI.createView({
@@ -114,6 +126,8 @@ W.Weather = function() {
   Ti.App.addEventListener('resume', function(e) {
     Ti.API.info('App was resumed. Get the location again.');
     
+    buttonRefresh.hide();
+    
     // Remove the current elements from the window
     // so they can be added again.
     win.remove(viewCurrentWeather);
@@ -125,6 +139,27 @@ W.Weather = function() {
      
     // Update the location.
     Location.updateLocation();
+  });
+  
+  /**
+   * Add an event listener for the refresh button.
+   */
+  buttonRefresh.addEventListener('click', function(e) {
+    Ti.API.info('Refresh button is clicked.');
+    
+    buttonRefresh.hide();
+    
+    // Remove the current elements from the window
+    // so they can be added again.
+    win.remove(viewCurrentWeather);
+    win.remove(viewCurrentHighLow);
+    
+    // Change the text on the spinner.
+    activityIndicator.setMessage('Updating your location ...');
+    activityIndicator.show();
+     
+    // Update the location.
+    Location.updateLocation();    
   });
 
   /**
@@ -166,6 +201,7 @@ W.Weather = function() {
             win.add(finishMessage);
             setTimeout(function() {
               win.remove(finishMessage);
+              buttonRefresh.show();
             },3000);            
           }
         },
