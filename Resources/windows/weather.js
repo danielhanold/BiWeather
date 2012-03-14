@@ -62,17 +62,22 @@ W.Weather = function() {
     bottom:0,
     right:100,
     font:{fontFamily:'Helvetica Neue', fontSize:35,fontWeight:'bold'},
-
   });
   var labelTempCelcius = UI.Label({
     bottom:0,
     right:5,
     font:{fontFamily:'Helvetica Neue', fontSize:35,fontWeight:'bold'},
   });
+  var imageViewIcon = Ti.UI.createImageView({
+    left:8,
+    bottom:7,
+    backgroundColor:'white'
+  });
   viewCurrentWeather.add(labelLocation);
   viewCurrentWeather.add(labelWeatherText);
   viewCurrentWeather.add(labelTempFahrenheit);
-  viewCurrentWeather.add(labelTempCelcius);    
+  viewCurrentWeather.add(labelTempCelcius);
+  viewCurrentWeather.add(imageViewIcon);    
 
   // Add a view for the daily high / low.
   var viewCurrentHighLow = Ti.UI.createView({
@@ -133,6 +138,27 @@ W.Weather = function() {
     labelTodayLow.setText('Low: ' + tempLowFahrenheit + '°F  |  ' + UTILS.FahrenheitToCelcius(tempLowFahrenheit) + '°C');
     labelTodayHigh.setText('High: ' + tempHighFahrenheit + '°F  |  ' + UTILS.FahrenheitToCelcius(tempHighFahrenheit) + '°C');
     
+    // Determine the weather icon image.
+    var db = DB.Open();
+    var weatherCode = data.weather.curren_weather[0].weather_code; 
+    var query = 'SELECT * FROM weather2 WHERE weather_code = ?';
+    var row = db.execute(query, weatherCode);
+    
+    // If later than 7pm, use the night icon, otherwise use the day icon.
+    var date = new Date();
+    var currentHour = date.getHours();
+    var fieldName = (currentHour >= 19) ? 'icon_night' : 'icon_day';
+    var iconName = row.fieldByName(fieldName);
+    var imageFile = Ti.Filesystem.getFile('images/weather2_icons/' + iconName);
+    var imageBlob = imageFile.read();
+    Ti.API.info('Displaying this icon: ' + iconName);
+    db.close();
+    
+    // Set the correct icon.
+    imageViewIcon.setWidth(imageBlob.width);
+    imageViewIcon.setHeight(imageBlob.height);
+    imageViewIcon.setImage(imageBlob);
+       
     // Add all elements to the page.
     win.add(viewCurrentWeather);
     win.add(viewCurrentHighLow);

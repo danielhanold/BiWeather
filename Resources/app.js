@@ -6,6 +6,7 @@ Ti.include('includes/properties.js');
 Ti.include('includes/geolocation.js');
 Ti.include('includes/ui.js');
 Ti.include('includes/utils.js');
+Ti.include('includes/database.js');
 
 // Load all windows.
 Ti.include('windows.js');
