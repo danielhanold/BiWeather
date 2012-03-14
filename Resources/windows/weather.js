@@ -49,15 +49,14 @@ W.Weather = function() {
     borderColor:'#386482'
   });
   var labelLocation = UI.Label({
-    text:'Weather data not availble.',
-    top:0,
-    left:5,
+    top:3,
+    left:8,
     font:{fontFamily:'Helvetica Neue', fontSize:16,fontWeight:'normal'}
   });
   var labelWeatherText = UI.Label({
-    top:20,
-    left:5,
-    font:{fontFamily:'Helvetica Neue', fontSize:14,fontWeight:'normal'},
+    top:23,
+    left:8,
+    font:{fontFamily:'Helvetica Neue', fontSize:15,fontWeight:'normal'},
   });
   var labelTempFahrenheit = UI.Label({
     bottom:0,
@@ -99,6 +98,23 @@ W.Weather = function() {
   // Update the location.
   Location.updateLocation();
 
+  // Function to update the location display.
+  var updateLocationDisplay = function() {
+    buttonRefresh.hide();
+    
+    // Remove the current elements from the window
+    // so they can be added again.
+    win.remove(viewCurrentWeather);
+    win.remove(viewCurrentHighLow);
+    
+    // Change the text on the spinner.
+    activityIndicator.setMessage('Updating your location ...');
+    activityIndicator.show();
+     
+    // Update the location.
+    Location.updateLocation();    
+  }
+
   /**
    * React to the weather update event.
    */
@@ -125,20 +141,7 @@ W.Weather = function() {
   // React when the app is resuming.
   Ti.App.addEventListener('resume', function(e) {
     Ti.API.info('App was resumed. Get the location again.');
-    
-    buttonRefresh.hide();
-    
-    // Remove the current elements from the window
-    // so they can be added again.
-    win.remove(viewCurrentWeather);
-    win.remove(viewCurrentHighLow);
-    
-    // Change the text on the spinner.
-    activityIndicator.setMessage('Updating your location ...');
-    activityIndicator.show();
-     
-    // Update the location.
-    Location.updateLocation();
+    updateLocationDisplay();
   });
   
   /**
@@ -146,20 +149,7 @@ W.Weather = function() {
    */
   buttonRefresh.addEventListener('click', function(e) {
     Ti.API.info('Refresh button is clicked.');
-    
-    buttonRefresh.hide();
-    
-    // Remove the current elements from the window
-    // so they can be added again.
-    win.remove(viewCurrentWeather);
-    win.remove(viewCurrentHighLow);
-    
-    // Change the text on the spinner.
-    activityIndicator.setMessage('Updating your location ...');
-    activityIndicator.show();
-     
-    // Update the location.
-    Location.updateLocation();    
+    updateLocationDisplay();  
   });
 
   /**
@@ -202,7 +192,7 @@ W.Weather = function() {
             setTimeout(function() {
               win.remove(finishMessage);
               buttonRefresh.show();
-            },3000);            
+            },2000);            
           }
         },
         onerror: function(e) {
