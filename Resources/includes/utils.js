@@ -1,8 +1,8 @@
-var UTILS = {};
+var Utils = {};
 
 (function() {
   // Define default label builder.
-  UTILS.FahrenheitToCelcius = function(a) {
+  Utils.FahrenheitToCelcius = function(a) {
     return Math.round((a - 32) * (5/9));
   }
 })();

@@ -134,9 +134,9 @@ W.Weather = function() {
     labelLocation.setText('Current weather in ' + currentCity + ':');
     labelWeatherText.setText(data.weather.curren_weather[0].weather_text);
     labelTempFahrenheit.setText(tempFahrenheit + '°F');
-    labelTempCelcius.setText(UTILS.FahrenheitToCelcius(tempFahrenheit) + '°C');
-    labelTodayLow.setText('Low: ' + tempLowFahrenheit + '°F  |  ' + UTILS.FahrenheitToCelcius(tempLowFahrenheit) + '°C');
-    labelTodayHigh.setText('High: ' + tempHighFahrenheit + '°F  |  ' + UTILS.FahrenheitToCelcius(tempHighFahrenheit) + '°C');
+    labelTempCelcius.setText(Utils.FahrenheitToCelcius(tempFahrenheit) + '°C');
+    labelTodayLow.setText('Low: ' + tempLowFahrenheit + '°F  |  ' + Utils.FahrenheitToCelcius(tempLowFahrenheit) + '°C');
+    labelTodayHigh.setText('High: ' + tempHighFahrenheit + '°F  |  ' + Utils.FahrenheitToCelcius(tempHighFahrenheit) + '°C');
     
     // Determine the weather icon image.
     var db = DB.Open();
