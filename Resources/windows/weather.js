@@ -100,9 +100,78 @@ W.Weather = function() {
   viewCurrentHighLow.add(labelTodayLow);
   viewCurrentHighLow.add(labelTodayHigh);
    
-  // Update the location.
+  // Update the location when the window gets loaded for the first time.
   Location.updateLocation();
 
+  /**
+   * Update the weather data.
+   */
+  var updateWeatherDisplay = function(data) {
+    // Hide the activity indicator and show a basic label instead.
+    activityIndicator.hide();
+    var finishMessage = Ti.UI.createLabel({
+      bottom:10,
+      height:50,
+      width:210,
+      color:'white',
+      font:{fontFamily:'Helvetica Neue', fontSize:15,fontWeight:'bold'},
+      text:'Found your weather.',
+      textAlign:Titanium.UI.TEXT_ALIGNMENT_CENTER
+    });
+    win.add(finishMessage);
+    setTimeout(function() {
+      win.remove(finishMessage);
+      buttonRefresh.show();
+    },2000);
+
+    // If server call was succesfull, update display.
+    if (data) {
+      //Ti.API.info(data.weather);
+      
+      // Update the labels.
+      var tempFahrenheit = data.weather.curren_weather[0].temp;    
+      var tempLowFahrenheit = data.weather.forecast[0].night_min_temp;
+      var tempHighFahrenheit = data.weather.forecast[0].day_max_temp;
+      var currentCity = (Location.currentLocationAvailable) ? Location.currentLocation.city : 'your location';
+      labelLocation.setText('Current weather in ' + currentCity + ':');
+      labelWeatherText.setText(data.weather.curren_weather[0].weather_text);
+      labelTempFahrenheit.setText(tempFahrenheit + '°F');
+      labelTempCelcius.setText(Utils.FahrenheitToCelcius(tempFahrenheit) + '°C');
+      labelTodayLow.setText('Low: ' + tempLowFahrenheit + '°F  |  ' + Utils.FahrenheitToCelcius(tempLowFahrenheit) + '°C');
+      labelTodayHigh.setText('High: ' + tempHighFahrenheit + '°F  |  ' + Utils.FahrenheitToCelcius(tempHighFahrenheit) + '°C');
+      
+      // Determine the weather icon image.
+      var db = DB.Open();
+      var weatherCode = data.weather.curren_weather[0].weather_code; 
+      var query = 'SELECT * FROM weather2 WHERE weather_code = ?';
+      var row = db.execute(query, weatherCode);
+      
+      // If later than 7pm, use the night icon, otherwise use the day icon.
+      var date = new Date();
+      var currentHour = date.getHours();
+      var fieldName = (currentHour >= 19) ? 'icon_night' : 'icon_day';
+      var iconName = row.fieldByName(fieldName);
+      var imageFile = Ti.Filesystem.getFile('images/weather2_icons/' + iconName);
+      var imageBlob = imageFile.read();
+      Ti.API.info('Displaying this icon: ' + iconName);
+      db.close();
+      
+      // Set the correct icon.
+      imageViewIcon.setWidth(imageBlob.width);
+      imageViewIcon.setHeight(imageBlob.height);
+      imageViewIcon.setImage(imageBlob);
+         
+      // Add all elements to the page.
+      win.add(viewCurrentWeather);
+      win.add(viewCurrentHighLow);      
+    }
+    // If callback was unsuccessful, display an error message.
+    else {
+      Ti.API.info('Weather data could not be retrieved from the server.');
+      alert('Weather data could not be updated.');
+    }    
+  };
+  
   // Function to update the location display.
   var updateLocationDisplay = function() {
     buttonRefresh.hide();
@@ -119,51 +188,7 @@ W.Weather = function() {
     // Update the location.
     Location.updateLocation();    
   }
-
-  /**
-   * React to the weather update event.
-   */
-  Ti.App.addEventListener('weather_update', function(data) {
-    //Ti.API.info(data.weather);
-
-    // Update the labels.
-    var tempFahrenheit = data.weather.curren_weather[0].temp;    
-    var tempLowFahrenheit = data.weather.forecast[0].night_min_temp;
-    var tempHighFahrenheit = data.weather.forecast[0].day_max_temp;
-    var currentCity = (Location.currentLocationAvailable) ? Location.currentLocation.city : 'your location';
-    labelLocation.setText('Current weather in ' + currentCity + ':');
-    labelWeatherText.setText(data.weather.curren_weather[0].weather_text);
-    labelTempFahrenheit.setText(tempFahrenheit + '°F');
-    labelTempCelcius.setText(Utils.FahrenheitToCelcius(tempFahrenheit) + '°C');
-    labelTodayLow.setText('Low: ' + tempLowFahrenheit + '°F  |  ' + Utils.FahrenheitToCelcius(tempLowFahrenheit) + '°C');
-    labelTodayHigh.setText('High: ' + tempHighFahrenheit + '°F  |  ' + Utils.FahrenheitToCelcius(tempHighFahrenheit) + '°C');
-    
-    // Determine the weather icon image.
-    var db = DB.Open();
-    var weatherCode = data.weather.curren_weather[0].weather_code; 
-    var query = 'SELECT * FROM weather2 WHERE weather_code = ?';
-    var row = db.execute(query, weatherCode);
-    
-    // If later than 7pm, use the night icon, otherwise use the day icon.
-    var date = new Date();
-    var currentHour = date.getHours();
-    var fieldName = (currentHour >= 19) ? 'icon_night' : 'icon_day';
-    var iconName = row.fieldByName(fieldName);
-    var imageFile = Ti.Filesystem.getFile('images/weather2_icons/' + iconName);
-    var imageBlob = imageFile.read();
-    Ti.API.info('Displaying this icon: ' + iconName);
-    db.close();
-    
-    // Set the correct icon.
-    imageViewIcon.setWidth(imageBlob.width);
-    imageViewIcon.setHeight(imageBlob.height);
-    imageViewIcon.setImage(imageBlob);
-       
-    // Add all elements to the page.
-    win.add(viewCurrentWeather);
-    win.add(viewCurrentHighLow);
-  });
-
+  
   // React when the app is resuming.
   Ti.App.addEventListener('resume', function(e) {
     Ti.API.info('App was resumed. Get the location again.');
@@ -175,8 +200,8 @@ W.Weather = function() {
    */
   buttonRefresh.addEventListener('click', function(e) {
     Ti.API.info('Refresh button is clicked.');
-    updateLocationDisplay();  
-  });
+    updateLocationDisplay();
+  });  
 
   /**
    * React to the location update event.
@@ -188,55 +213,13 @@ W.Weather = function() {
       Ti.API.info('Coordinates are available. Attempt to get the temperature');
       activityIndicator.setMessage('Getting weather information ...');
       
-      // @see http://www.myweather2.com/developer/apis.aspx?uref=becda844-8299-4bf6-899b-d771a92b9dbf
-      var url = 'http://www.myweather2.com/developer/forecast.ashx?uac=' + Ti.App.Properties.getString('weather2AccessCode') + '&output=json&temp_unit=f&query=' + Location.currentCoords.latitude + ',' + Location.currentCoords.longitude;
-      Ti.API.info('Weather2 URL: ' + url);
-      
-      var xhr = Ti.Network.createHTTPClient({
-        onload: function(e) {
-          // This function is called when data is returned from the server and available for use
-          // this.responseText holds the raw text return of the message (used for text/JSON)
-          // this.responseXML holds any returned XML (including SOAP)
-          // this.responseData holds any returned binary data
-          var httpStatus = this.status;
-          if (httpStatus == 200) {
-            Ti.API.info('Weather data was found.');
-            Ti.App.fireEvent('weather_update', JSON.parse(this.responseText)); 
-            
-            // Hide the activity indicator and show a basic label instead.
-            activityIndicator.hide();
-            var finishMessage = Ti.UI.createLabel({
-              bottom:10,
-              height:50,
-              width:210,
-              color:'white',
-              font:{fontFamily:'Helvetica Neue', fontSize:15,fontWeight:'bold'},
-              text:'Found your weather.',
-              textAlign:Titanium.UI.TEXT_ALIGNMENT_CENTER
-            });
-            win.add(finishMessage);
-            setTimeout(function() {
-              win.remove(finishMessage);
-              buttonRefresh.show();
-            },2000);            
-          }
-        },
-        onerror: function(e) {
-          // this function is called when an error occurs, including a timeout.
-          Ti.API.debug(e.error);
-          alert('There was a problem with your HTTP request: ' + e.error);
-          Ti.API.debug('The HTTP request status was: ' + this.status);
-        },
-        ondatastream: function(e) {
-          // This function is called as data is downloaded
-          Ti.API.debug('HTTP request is downloading data.')
-        },
-        timeout: 5000 // set in milliseconds
-      });
-      xhr.open('GET', url);
-      xhr.send();      
+      // Define a server call with a callback function.
+      Utils.Server.GetWeatherData({
+        latitude:Location.currentCoords.latitude,
+        longitude:Location.currentCoords.longitude        
+      }, updateWeatherDisplay);
     }    
-  });
-  
+  });  
+
   return win;
 }
